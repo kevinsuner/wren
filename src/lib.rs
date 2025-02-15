@@ -13,6 +13,7 @@ struct State<'a> {
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
+    clear_color: wgpu::Color,
     window: &'a Window,
 }
 
@@ -83,12 +84,15 @@ impl<'a> State<'a> {
             desired_maximum_frame_latency: 2,
         };
 
+        let clear_color = wgpu::Color::BLACK;
+
         Self {
             surface,
             device,
             queue,
             config,
             size,
+            clear_color,
             window,
         }
     }
@@ -107,7 +111,18 @@ impl<'a> State<'a> {
     }
 
     fn input(&mut self, event: &WindowEvent) -> bool {
-        false
+        match event {
+            WindowEvent::CursorMoved { position, .. } => {
+                self.clear_color = wgpu::Color {
+                    r: position.x as f64 / self.size.width as f64,
+                    g: position.y as f64 / self.size.height as f64,
+                    b: 1.0,
+                    a: 1.0,
+                };
+                true
+            }
+            _ => false,
+        }
     }
 
     fn update(&mut self) {
@@ -132,12 +147,7 @@ impl<'a> State<'a> {
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Clear(self.clear_color),
                         store: wgpu::StoreOp::Store,
                     },
                 })],
@@ -176,7 +186,6 @@ pub async fn run() {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
         use winit::dpi::PhysicalSize;
-        let _ = window.request_inner_size(PhysicalSize::new(450, 400));
 
         use winit::platform::web::WindowExtWebSys;
         web_sys::window()
@@ -188,6 +197,8 @@ pub async fn run() {
                 Some(())
             })
             .expect("Couldn't append canvas to document body.");
+
+        let _ = window.request_inner_size(PhysicalSize::new(450, 400));
     }
 
     let mut state = State::new(&window).await;
