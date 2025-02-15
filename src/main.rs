@@ -1,5 +1,5 @@
 use wren::run;
 
 fn main() {
-    run();
+    pollster::block_on(run());
 }
