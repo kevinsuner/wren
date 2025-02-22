@@ -24,7 +24,7 @@ pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     0.0, 0.0, 0.0, 1.0,
 );
 
-const NUM_INSTANCES_PER_ROW: u32 = 5;
+const NUM_INSTANCES_PER_ROW: u32 = 1;
 
 struct Camera {
     eye: cgmath::Point3<f32>,
@@ -365,7 +365,7 @@ impl<'a> State<'a> {
                             cgmath::Deg(0.0),
                         )
                     } else {
-                        cgmath::Quaternion::from_axis_angle(position.normalize(), cgmath::Deg(45.0))
+                        cgmath::Quaternion::from_axis_angle(position.normalize(), cgmath::Deg(0.0))
                     };
 
                     Instance { position, rotation }
@@ -404,10 +404,14 @@ impl<'a> State<'a> {
             label: Some("camera_bind_group"),
         });
 
-        let obj_model =
-            resources::load_model("cube.obj", &device, &queue, &texture_bind_group_layout)
-                .await
-                .unwrap();
+        let obj_model = resources::load_model(
+            "birdmonster.obj",
+            &device,
+            &queue,
+            &texture_bind_group_layout,
+        )
+        .await
+        .unwrap();
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
