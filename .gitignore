@@ -1,3 +1,6 @@
 /target
+/pkg
+/res
 index.html
 happy-tree.png
+**/.DS_Store
