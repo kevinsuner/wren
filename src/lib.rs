@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use std::f32::consts::PI;
 
 use cgmath::prelude::*;
@@ -141,6 +142,7 @@ struct LightUniform {
     _padding2: u32,
 }
 
+#[allow(dead_code)]
 struct State<'a> {
     surface: wgpu::Surface<'a>,
     device: wgpu::Device,
