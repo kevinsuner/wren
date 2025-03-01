@@ -200,7 +200,7 @@ impl<'a> State<'a> {
                     // WebGL doesn't support all of wgpu's features, so if
                     // we're building for the web, we'll have to disable some.
                     required_limits: if cfg!(target_arch = "wasm32") {
-                        wgpu::Limits::downlevel_webgl2_defaults()
+                        wgpu::Limits::downlevel_webgl2_defaults().using_resolution(adapter.limits())
                     } else {
                         wgpu::Limits::default()
                     },
@@ -677,11 +677,6 @@ pub async fn run() {
 
     #[cfg(target_arch = "wasm32")]
     {
-        // Winit prevents sizing with CSS, so we have to set
-        // the size manually when on web.
-        use winit::dpi::PhysicalSize;
-        let _ = window.request_inner_size(PhysicalSize::new(450, 400));
-
         use winit::platform::web::WindowExtWebSys;
         web_sys::window()
             .and_then(|win| win.document())
@@ -692,6 +687,11 @@ pub async fn run() {
                 Some(())
             })
             .expect("Couldn't append canvas to document body.");
+
+        // Winit prevents sizing with CSS, so we have to set
+        // the size manually when on web.
+        use winit::dpi::PhysicalSize;
+        let _ = window.request_inner_size(PhysicalSize::new(1280, 720));
     }
 
     let mut state = State::new(&window).await;
